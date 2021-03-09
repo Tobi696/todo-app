@@ -5,18 +5,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
-import android.text.style.BackgroundColorSpan;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -26,12 +19,9 @@ import android.widget.TimePicker;
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -63,7 +53,10 @@ public class SingleTodoActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                todo.setText(realTodoText);
+                todo.setDate(date);
+                todo.setTime(time);
+                MainActivity.repository.upsert(todo);
             }
         });
     }
@@ -148,7 +141,7 @@ public class SingleTodoActivity extends AppCompatActivity {
         } else {
             title.setText("Modify Todo");
             submitButton.setText("Update Todo");
-            todo = TodoSerializer.deserialize(bundle.getString("todo"));
+            todo = TodoRepository.serializer.deserialize(bundle.getString("todo"));
             todoText.setText(todo.getText());
             realTodoText = todo.getText();
             setDate(todo.getDate());
