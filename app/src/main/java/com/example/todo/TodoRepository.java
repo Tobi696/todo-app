@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class TodoRepository {
     private Set<Todo> storage = new HashSet<>();
-    public final static TodoSerializer serializer = new CustomTodoSerializer();
+    public final static TodoSerializer serializer = new JsonTodoSerializer();
     public final List<ChangeListener> changeListeners = new ArrayList<>();
 
     public void addChangeListener(ChangeListener changeListener) {
@@ -25,7 +25,6 @@ public class TodoRepository {
     }
 
     public void insert(Todo todo) {
-        storage.remove(todo);
         storage.add(todo);
         notifyChangeListeners();
     }

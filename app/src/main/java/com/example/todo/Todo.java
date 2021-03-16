@@ -27,6 +27,7 @@ public class Todo {
     public Todo() {}
 
     public Todo(String id, String text, LocalDate date, LocalTime time, boolean completed) {
+        this.id = id;
         this.text = text;
         this.date = date;
         this.time = time;

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="15dp"
+    android:layout_marginLeft="15dp"
+    android:layout_marginTop="30dp"
+    android:layout_marginEnd="15dp"
+    android:layout_marginRight="15dp"
+    android:layout_marginBottom="30dp"
+    android:padding="10dp">
+
+    <CheckBox
+        android:id="@+id/todoItemCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:button="@drawable/ic_baseline_check_circle_24"
+        android:gravity="center|center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/todoText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Todo 1"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/todoUntil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="16.3.2021 9:30" />
+    </LinearLayout>
+</LinearLayout>

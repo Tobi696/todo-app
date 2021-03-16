@@ -26,8 +26,8 @@ public class CustomTodoSerializer implements TodoSerializer {
         String[] parts = serialized.split(",");
         String id = parts[0];
         String text = parts[1].trim();
-        LocalDate date = parts[2].equals("null") ? null : LocalDate.parse(parts[1], MainActivity.dateFormatter);
-        LocalTime time = parts[3].equals("null") ? null : LocalTime.parse(parts[2], MainActivity.timeFormatter);
+        LocalDate date = parts[2].equals("null") ? null : LocalDate.parse(parts[2], MainActivity.dateFormatter);
+        LocalTime time = parts[3].equals("null") ? null : LocalTime.parse(parts[3], MainActivity.timeFormatter);
         boolean completed = Boolean.parseBoolean(parts[4]);
         return new Todo(id, text, date, time, completed);
     }

@@ -3,12 +3,14 @@ package com.example.todo;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class SingleTodoActivity extends AppCompatActivity {
@@ -45,6 +48,15 @@ public class SingleTodoActivity extends AppCompatActivity {
         initializeTimeButton();
         initializeSubmitButton();
         initializeWithIntent();
+
+        androidx.appcompat.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return true;
     }
 
     private void initializeSubmitButton() {
@@ -53,16 +65,19 @@ public class SingleTodoActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println(todo == null);
                 todo = todo == null ? new Todo() : todo;
                 todo.setText(realTodoText);
                 todo.setDate(date);
                 todo.setTime(time);
                 if (todo.getText() == null || todo.getText().isEmpty()) return;
                 if (todo.getId() == null) {
+                    todo.setId(UUID.randomUUID().toString());
                     MainActivity.repository.insert(todo);
                 } else {
                     MainActivity.repository.update(todo);
                 }
+                finish();
             }
         });
     }

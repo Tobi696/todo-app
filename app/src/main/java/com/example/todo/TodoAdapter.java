@@ -1,0 +1,73 @@
+package com.example.todo;
+
+import android.content.Context;
+import android.os.Build;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import java.util.List;
+
+public class TodoAdapter extends BaseAdapter {
+    private int layoutId;
+    private List<Todo> todos;
+    private LayoutInflater inflater;
+    private MainActivity mainActivity;
+
+    public TodoAdapter(Context ctx, int layoutId, List<Todo> todos, MainActivity mainActivity) {
+        this.todos = todos;
+        this.layoutId = layoutId;
+        inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.mainActivity = mainActivity;
+    }
+
+
+    @Override
+    public int getCount() {
+        return todos.size();
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return todos.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return 0;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
+        Todo todo = todos.get(i);
+        View listViewItem = (view == null) ? inflater.inflate(layoutId, null) : view;
+        CheckBox checkBox = listViewItem.findViewById(R.id.todoItemCheckBox);
+        checkBox.setChecked(todo.isCompleted());
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                todo.setCompleted(checkBox.isChecked());
+                MainActivity.repository.update(todo);
+            }
+        });
+
+        listViewItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainActivity.startEditTodoIntent(todo);
+            }
+        });
+
+        ((TextView) listViewItem.findViewById(R.id.todoText)).setText(todo.getText());
+        ((TextView) listViewItem.findViewById(R.id.todoUntil)).setText(((todo.getDate() == null ? "" : todo.getDate().format(MainActivity.dateFormatter)) + " " + (todo.getTime() == null ? "" : todo.getTime().format(MainActivity.timeFormatter)).trim()));
+        return listViewItem;
+    }
+}
