@@ -24,7 +24,13 @@ public class TodoRepository {
         for (ChangeListener changeListener : changeListeners) changeListener.onChanged();
     }
 
-    public void upsert(Todo todo) {
+    public void insert(Todo todo) {
+        storage.remove(todo);
+        storage.add(todo);
+        notifyChangeListeners();
+    }
+
+    public void update(Todo todo) {
         storage.remove(todo);
         storage.add(todo);
         notifyChangeListeners();

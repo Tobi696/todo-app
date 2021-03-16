@@ -53,10 +53,16 @@ public class SingleTodoActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                todo = todo == null ? new Todo() : todo;
                 todo.setText(realTodoText);
                 todo.setDate(date);
                 todo.setTime(time);
-                MainActivity.repository.upsert(todo);
+                if (todo.getText() == null || todo.getText().isEmpty()) return;
+                if (todo.getId() == null) {
+                    MainActivity.repository.insert(todo);
+                } else {
+                    MainActivity.repository.update(todo);
+                }
             }
         });
     }

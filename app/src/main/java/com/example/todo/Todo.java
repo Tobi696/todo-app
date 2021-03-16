@@ -14,10 +14,23 @@ public class Todo {
     private LocalDate date;
     private LocalTime time;
 
-    public Todo(String id, String text, LocalDate date, LocalTime time) {
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    private boolean completed;
+
+    public Todo() {}
+
+    public Todo(String id, String text, LocalDate date, LocalTime time, boolean completed) {
         this.text = text;
         this.date = date;
         this.time = time;
+        this.completed = completed;
     }
 
     public String getText() {

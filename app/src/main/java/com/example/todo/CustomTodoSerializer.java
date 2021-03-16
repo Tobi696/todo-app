@@ -14,7 +14,7 @@ public class CustomTodoSerializer implements TodoSerializer {
         String text = todo.getText();
         String date = todo.getDate() == null ? "null" : todo.getDate().format(MainActivity.dateFormatter);
         String time = todo.getTime() == null ? "null" : todo.getTime().format(MainActivity.timeFormatter);
-        return "Todo(" + todo.getId() + "," + text + "," + date + "," + time + ")";
+        return "Todo(" + todo.getId() + "," + text + "," + date + "," + time + "," + todo.isCompleted() + ")";
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -28,6 +28,7 @@ public class CustomTodoSerializer implements TodoSerializer {
         String text = parts[1].trim();
         LocalDate date = parts[2].equals("null") ? null : LocalDate.parse(parts[1], MainActivity.dateFormatter);
         LocalTime time = parts[3].equals("null") ? null : LocalTime.parse(parts[2], MainActivity.timeFormatter);
-        return new Todo(id, text, date, time);
+        boolean completed = Boolean.parseBoolean(parts[4]);
+        return new Todo(id, text, date, time, completed);
     }
 }
