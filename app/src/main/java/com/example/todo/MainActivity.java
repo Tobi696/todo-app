@@ -1,16 +1,20 @@
 package com.example.todo;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +22,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
@@ -33,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements ChangeListener {
     public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     public static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    public static final int RQ_WRITE_EXTERNAL_STORAGE = 12345;
 
     private List<Todo> todoList = new ArrayList<>();
     private TodoAdapter adapter;
@@ -63,6 +72,18 @@ public class MainActivity extends AppCompatActivity implements ChangeListener {
         loadTodos();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == RQ_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "SD Card Access was denied", Toast.LENGTH_LONG).show();
+            } else {
+                saveTodos(false);
+            }
+        }
+    }
+
     private void setTheme() {
         boolean darkTheme = preferences.getBoolean("dark_theme", false);
         AppCompatDelegate.setDefaultNightMode(darkTheme ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
@@ -86,20 +107,39 @@ public class MainActivity extends AppCompatActivity implements ChangeListener {
     }
 
     private void loadTodos() {
+        String state = Environment.getExternalStorageState();
+        if (!state.equals(Environment.MEDIA_MOUNTED)) return;
+        File outFile = Environment.getExternalStorageDirectory();
+        String path = outFile.getPath();
+        String fullPath = path + File.separator + "todos.json";
         try {
-            InputStream inputStream = openFileInput("todos.todofile");
+            // InputStream inputStream = openFileInput("todos.json");
+            InputStream inputStream = new FileInputStream(fullPath);
             repository.load(inputStream);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         onChanged();
     }
 
-    private void saveTodos() {
-        try {
-            OutputStream outputStream = openFileOutput("todos.todofile", MODE_PRIVATE);
-            repository.save(outputStream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    private void saveTodos(boolean requestPermission) {
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (requestPermission) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RQ_WRITE_EXTERNAL_STORAGE);
+            }
+        } else {
+            String state = Environment.getExternalStorageState();
+            if (!state.equals(Environment.MEDIA_MOUNTED)) return;
+            File outFile = Environment.getExternalStorageDirectory();
+            String path = outFile.getPath();
+            String fullPath = path + File.separator + "todos.json";
+            try {
+                // OutputStream outputStream = openFileOutput("todos.json", MODE_PRIVATE);
+                OutputStream outputStream = new FileOutputStream(fullPath);
+                repository.save(outputStream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -125,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements ChangeListener {
         todoList.addAll(getTodosAccordingToPreferences());
         adapter.notifyDataSetChanged();
         updateYourTodosText();
-        saveTodos();
+        saveTodos(true);
     }
 
     private List<Todo> getTodosAccordingToPreferences() {
@@ -137,7 +177,9 @@ public class MainActivity extends AppCompatActivity implements ChangeListener {
 
     public void startEditTodoIntent(Todo todo) {
         Intent intent = new Intent(this, SingleTodoActivity.class);
-        intent.putExtra("todo", TodoRepository.serializer.serialize(todo));
+        List<Todo> todos = new ArrayList<>();
+        todos.add(todo);
+        intent.putExtra("todo", TodoRepository.serializer.serialize(todos).get(0));
         startActivity(intent);
     }
 }

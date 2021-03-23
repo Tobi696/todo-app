@@ -1,7 +1,5 @@
 package com.example.todo;
 
-import android.widget.ListView;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -13,7 +11,7 @@ import java.util.Set;
 
 public class TodoRepository {
     private Set<Todo> storage = new HashSet<>();
-    public final static TodoSerializer serializer = new JsonTodoSerializer();
+    public final static TodoListSerializer serializer = new JsonTodoListSerializer();
     public final List<ChangeListener> changeListeners = new ArrayList<>();
 
     public void addChangeListener(ChangeListener changeListener) {
@@ -43,8 +41,11 @@ public class TodoRepository {
 
     public void save(OutputStream os) {
         PrintWriter pw = new PrintWriter(os);
-        for (Todo todo : storage) {
-            pw.println(serializer.serialize(todo));
+        List<Todo> todos = new ArrayList<>();
+        todos.addAll(storage);
+        List<String> lines = serializer.serialize(todos);
+        for (String line : lines) {
+            pw.println(line);
         }
         pw.flush();
         pw.close();
@@ -52,11 +53,14 @@ public class TodoRepository {
 
     public void load(InputStream is) {
         Scanner sc = new Scanner(is);
-        storage.clear();
+        StringBuilder content = new StringBuilder();
+        List<String> lines = new ArrayList<>();
         while (sc.hasNext()) {
-            storage.add(serializer.deserialize(sc.nextLine()));
+            lines.add(sc.nextLine());
         }
         sc.close();
+        storage.clear();
+        storage.addAll(serializer.deserialize(lines));
         notifyChangeListeners();
     }
 }

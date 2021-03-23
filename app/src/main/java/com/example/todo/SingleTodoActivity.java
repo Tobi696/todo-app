@@ -23,6 +23,7 @@ import com.joestelmach.natty.Parser;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -162,7 +163,9 @@ public class SingleTodoActivity extends AppCompatActivity {
         } else {
             title.setText("Modify Todo");
             submitButton.setText("Update Todo");
-            todo = TodoRepository.serializer.deserialize(bundle.getString("todo"));
+            List<String> x = new ArrayList<>();
+            x.add(bundle.getString("todo"));
+            todo = TodoRepository.serializer.deserialize(x).get(0);
             todoText.setText(todo.getText());
             realTodoText = todo.getText();
             setDate(todo.getDate());
