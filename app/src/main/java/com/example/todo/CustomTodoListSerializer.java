@@ -35,8 +35,11 @@ public class CustomTodoListSerializer implements TodoListSerializer {
             String text = parts[1].trim();
             LocalDate date = parts[2].equals("null") ? null : LocalDate.parse(parts[2], OverviewActivity.dateFormatter);
             LocalTime time = parts[3].equals("null") ? null : LocalTime.parse(parts[3], OverviewActivity.timeFormatter);
-            boolean completed = Boolean.parseBoolean(parts[4]);
-            result.add(new Todo(id, text, date, time, completed));
+            double latitude = Double.parseDouble(parts[4]);
+            double longitude = Double.parseDouble(parts[5]);
+            String address = parts[6];
+            boolean completed = Boolean.parseBoolean(parts[7]);
+            result.add(new Todo(id, text, date, time, latitude, longitude, address, completed));
         }
         return result;
     }

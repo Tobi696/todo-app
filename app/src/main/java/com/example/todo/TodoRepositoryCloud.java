@@ -109,7 +109,7 @@ public class TodoRepositoryCloud extends BaseTodoRepository {
                             continue;
                         }
                         JSONObject additionalData = new JSONObject(jTodo.getString("additionalData"));
-                        Todo todo = new Todo(jTodo.getString("id"), jTodo.getString("title"), additionalData.has("date") ? LocalDate.parse(additionalData.getString("date"), OverviewActivity.dateFormatter) : null, additionalData.has("time") ? LocalTime.parse(additionalData.getString("time"), OverviewActivity.timeFormatter) : null, Boolean.parseBoolean(jTodo.getString("state")));
+                        Todo todo = new Todo(jTodo.getString("id"), jTodo.getString("title"), additionalData.has("date") ? LocalDate.parse(additionalData.getString("date"), OverviewActivity.dateFormatter) : null, additionalData.has("time") ? LocalTime.parse(additionalData.getString("time"), OverviewActivity.timeFormatter) : null, additionalData.getDouble("latitude"), additionalData.getDouble("longitude"), additionalData.getString("address"), Boolean.parseBoolean(jTodo.getString("state")));
                         todos.add(todo);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -138,9 +138,20 @@ public class TodoRepositoryCloud extends BaseTodoRepository {
             Map<String, Object> result = new HashMap<>();
             String todoListId = (String) input[0];
             Todo todo = (Todo) input[1];
-            byte[] bytes = todoToByteResource(todoListId, todo);
             try {
-                HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("http://sickinger-solutions.at/notesserver/todo.php?username=" + overviewActivity.username + "&password=" + overviewActivity.password).openConnection();
+                HttpURLConnection httpURLConnection = (HttpURLConnection) new URL("https://eu1.locationiq.com/v1/reverse.php?key=pk.91a805ea802f1f7d0b2911c36cb0a07a&lat=" + todo.getLatitude() + "&lon=" + todo.getLongitude() + "&format=json").openConnection();
+                httpURLConnection.setRequestMethod("GET");
+                httpURLConnection.setRequestProperty("Content-Type", "application/json");
+                Scanner sc = new Scanner(httpURLConnection.getInputStream());
+                StringBuilder sb = new StringBuilder();
+                while (sc.hasNext()) {
+                    sb.append(sc.nextLine());
+                }
+                JSONObject json = new JSONObject(sb.toString());
+                todo.setAddress(json.getString("display_name"));
+
+                byte[] bytes = todoToByteResource(todoListId, todo);
+                httpURLConnection = (HttpURLConnection) new URL("http://sickinger-solutions.at/notesserver/todo.php?username=" + overviewActivity.username + "&password=" + overviewActivity.password).openConnection();
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setRequestProperty("Content-Type", "application/json");
@@ -263,6 +274,9 @@ public class TodoRepositoryCloud extends BaseTodoRepository {
             JSONObject additionalData = new JSONObject();
             additionalData.put("date", todo.getDate() == null ? null : todo.getDate().format(OverviewActivity.dateFormatter));
             additionalData.put("time", todo.getTime() == null ? null : todo.getTime().format(OverviewActivity.timeFormatter));
+            additionalData.put("latitude", todo.getLatitude());
+            additionalData.put("longitude", todo.getLongitude());
+            additionalData.put("address", todo.getAddress());
             postParams.put("additionalData", additionalData.toString());
         } catch (JSONException e) {
             e.printStackTrace();

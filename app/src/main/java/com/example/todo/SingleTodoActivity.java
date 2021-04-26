@@ -1,10 +1,18 @@
 package com.example.todo;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -29,19 +37,23 @@ import java.util.UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class SingleTodoActivity extends AppCompatActivity {
-    Todo todo;
-    EditText todoText;
-    LocalDate date;
-    LocalTime time;
-    Button dateButton;
-    Button timeButton;
-    String realTodoText;
-    Button submitButton;
+    private Todo todo;
+    private EditText todoText;
+    private LocalDate date;
+    private LocalTime time;
+    private Button dateButton;
+    private Button timeButton;
+    private String realTodoText;
+    private Button submitButton;
+    private LocationManager locationManager;
+
+    private final int REQUEST_COARSE_LOCATION = 21;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_todo);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         initializeTodoText();
         initializeDateButton();
@@ -51,6 +63,14 @@ public class SingleTodoActivity extends AppCompatActivity {
 
         androidx.appcompat.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_COARSE_LOCATION) {
+            onSubmit(false);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -65,20 +85,43 @@ public class SingleTodoActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println(todo == null);
-                todo = todo == null ? new Todo() : todo;
-                todo.setText(realTodoText);
-                todo.setDate(date);
-                todo.setTime(time);
-                if (todo.getText() == null || todo.getText().isEmpty()) return;
-                if (todo.getId() == null) {
-                    TodoRepository.instance.insert(todo);
-                } else {
-                    TodoRepository.instance.update(todo);
-                }
-                finish();
+                onSubmit(true);
             }
         });
+    }
+
+    private void onSubmit(boolean requestPermission) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (requestPermission) ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_COARSE_LOCATION);
+        } else {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            criteria.setCostAllowed(false);
+            String provider = locationManager.getBestProvider(criteria, false);
+            Location location = null;
+            try {
+                location = locationManager.getLastKnownLocation(provider);
+                if (location != null) {
+                    todo.setLatitude(location.getLatitude());
+                    todo.setLongitude(location.getLongitude());
+                }
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println(todo == null);
+            todo = todo == null ? new Todo() : todo;
+            todo.setText(realTodoText);
+            todo.setDate(date);
+            todo.setTime(time);
+            if (todo.getText() == null || todo.getText().isEmpty()) return;
+            if (todo.getId() == null) {
+                TodoRepository.instance.insert(todo);
+            } else {
+                TodoRepository.instance.update(todo);
+            }
+            finish();
+        }
     }
 
     private void initializeDateButton() {

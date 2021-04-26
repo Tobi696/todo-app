@@ -14,6 +14,45 @@ public class Todo {
     private LocalDate date;
     private LocalTime time;
 
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Todo(String id, String text, LocalDate date, LocalTime time, double latitude, double longitude, String address, boolean completed) {
+        this.id = id;
+        this.text = text;
+        this.date = date;
+        this.time = time;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.address = address;
+        this.completed = completed;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    private double latitude;
+    private double longitude;
+    private String address;
+
     public boolean isCompleted() {
         return completed;
     }
@@ -25,14 +64,6 @@ public class Todo {
     private boolean completed;
 
     public Todo() {}
-
-    public Todo(String id, String text, LocalDate date, LocalTime time, boolean completed) {
-        this.id = id;
-        this.text = text;
-        this.date = date;
-        this.time = time;
-        this.completed = completed;
-    }
 
     public String getText() {
         return text;

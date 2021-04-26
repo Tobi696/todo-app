@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 public class TodoAdapter extends BaseAdapter {
@@ -66,6 +68,7 @@ public class TodoAdapter extends BaseAdapter {
 
         ((TextView) listViewItem.findViewById(R.id.todoText)).setText(todo.getText());
         ((TextView) listViewItem.findViewById(R.id.todoUntil)).setText(((todo.getDate() == null ? "" : todo.getDate().format(OverviewActivity.dateFormatter)) + " " + (todo.getTime() == null ? "" : todo.getTime().format(OverviewActivity.timeFormatter)).trim()));
+        ((TextView) listViewItem.findViewById(R.id.todoLocation)).setText(todo.getAddress() + " (" + todo.getLatitude() + ", " + todo.getLongitude() + ")");
         return listViewItem;
     }
 }
