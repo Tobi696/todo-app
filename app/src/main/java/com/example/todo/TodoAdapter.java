@@ -5,12 +5,10 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.util.List;
@@ -19,13 +17,13 @@ public class TodoAdapter extends BaseAdapter {
     private int layoutId;
     private List<Todo> todos;
     private LayoutInflater inflater;
-    private MainActivity mainActivity;
+    private OverviewActivity overviewActivity;
 
-    public TodoAdapter(Context ctx, int layoutId, List<Todo> todos, MainActivity mainActivity) {
+    public TodoAdapter(Context ctx, int layoutId, List<Todo> todos, OverviewActivity overviewActivity) {
         this.todos = todos;
         this.layoutId = layoutId;
         inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mainActivity = mainActivity;
+        this.overviewActivity = overviewActivity;
     }
 
 
@@ -55,19 +53,19 @@ public class TodoAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 todo.setCompleted(checkBox.isChecked());
-                MainActivity.repository.update(todo);
+                TodoRepository.instance.update(todo);
             }
         });
 
         listViewItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.startEditTodoIntent(todo);
+                overviewActivity.startEditTodoIntent(todo);
             }
         });
 
         ((TextView) listViewItem.findViewById(R.id.todoText)).setText(todo.getText());
-        ((TextView) listViewItem.findViewById(R.id.todoUntil)).setText(((todo.getDate() == null ? "" : todo.getDate().format(MainActivity.dateFormatter)) + " " + (todo.getTime() == null ? "" : todo.getTime().format(MainActivity.timeFormatter)).trim()));
+        ((TextView) listViewItem.findViewById(R.id.todoUntil)).setText(((todo.getDate() == null ? "" : todo.getDate().format(OverviewActivity.dateFormatter)) + " " + (todo.getTime() == null ? "" : todo.getTime().format(OverviewActivity.timeFormatter)).trim()));
         return listViewItem;
     }
 }

@@ -15,8 +15,8 @@ public class CustomTodoListSerializer implements TodoListSerializer {
         List<String> result = new ArrayList<>();
         for (Todo todo : todos) {
             String text = todo.getText();
-            String date = todo.getDate() == null ? "null" : todo.getDate().format(MainActivity.dateFormatter);
-            String time = todo.getTime() == null ? "null" : todo.getTime().format(MainActivity.timeFormatter);
+            String date = todo.getDate() == null ? "null" : todo.getDate().format(OverviewActivity.dateFormatter);
+            String time = todo.getTime() == null ? "null" : todo.getTime().format(OverviewActivity.timeFormatter);
             result.add("Todo(" + todo.getId() + "," + text + "," + date + "," + time + "," + todo.isCompleted() + ")");
         }
         return result;
@@ -33,8 +33,8 @@ public class CustomTodoListSerializer implements TodoListSerializer {
             String[] parts = serialized.split(",");
             String id = parts[0];
             String text = parts[1].trim();
-            LocalDate date = parts[2].equals("null") ? null : LocalDate.parse(parts[2], MainActivity.dateFormatter);
-            LocalTime time = parts[3].equals("null") ? null : LocalTime.parse(parts[3], MainActivity.timeFormatter);
+            LocalDate date = parts[2].equals("null") ? null : LocalDate.parse(parts[2], OverviewActivity.dateFormatter);
+            LocalTime time = parts[3].equals("null") ? null : LocalTime.parse(parts[3], OverviewActivity.timeFormatter);
             boolean completed = Boolean.parseBoolean(parts[4]);
             result.add(new Todo(id, text, date, time, completed));
         }

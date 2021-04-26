@@ -3,7 +3,6 @@ package com.example.todo;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
 
 import android.content.DialogInterface;
 import android.os.Build;
@@ -73,10 +72,9 @@ public class SingleTodoActivity extends AppCompatActivity {
                 todo.setTime(time);
                 if (todo.getText() == null || todo.getText().isEmpty()) return;
                 if (todo.getId() == null) {
-                    todo.setId(UUID.randomUUID().toString());
-                    MainActivity.repository.insert(todo);
+                    TodoRepository.instance.insert(todo);
                 } else {
-                    MainActivity.repository.update(todo);
+                    TodoRepository.instance.update(todo);
                 }
                 finish();
             }
@@ -165,7 +163,7 @@ public class SingleTodoActivity extends AppCompatActivity {
             submitButton.setText("Update Todo");
             List<String> x = new ArrayList<>();
             x.add(bundle.getString("todo"));
-            todo = TodoRepository.serializer.deserialize(x).get(0);
+            todo = new CustomTodoListSerializer().deserialize(x).get(0);
             todoText.setText(todo.getText());
             realTodoText = todo.getText();
             setDate(todo.getDate());
@@ -213,11 +211,11 @@ public class SingleTodoActivity extends AppCompatActivity {
 
     private void setDate(LocalDate newDate) {
         date = newDate;
-        dateButton.setText(date == null ? "No Date" : date.format(MainActivity.dateFormatter));
+        dateButton.setText(date == null ? "No Date" : date.format(OverviewActivity.dateFormatter));
     }
 
     private void setTime(LocalTime newTime) {
         time = newTime;
-        timeButton.setText(time == null ? "No Time" : time.format(MainActivity.timeFormatter));
+        timeButton.setText(time == null ? "No Time" : time.format(OverviewActivity.timeFormatter));
     }
 }
